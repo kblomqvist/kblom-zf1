@@ -158,17 +158,6 @@ class Kblom_Tool_Locale extends Zend_Tool_Project_Provider_Abstract
         }
     }
 
-    protected function _getParser($path)
-    {
-        $parser = new Muiku_Tool_FunctionParamParser($path);
-        $parser->setFuncKeyWords($this->_func_kwords);
-        $parser->setArrKeyWords($this->_arr_kwords);
-        $parser->setDefaultPattern(self::DEFAULT_PATTERN);
-        $parser->setRelativePaths(array('.'));
-
-        return $parser->getMatches();
-    }
-
     protected function _loadTranslations($filename)
     {
         $data = array();
