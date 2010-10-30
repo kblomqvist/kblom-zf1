@@ -1,7 +1,9 @@
 <?php
 
 /**
- * Matches to given function names and parses Parses function  and array keys.
+ * Parses specified function names and array keys from PHP source files.
+ * During every hit function params are matched and saved according to user
+ * given regexp pattern. The values of found array keys are saved as is.
  *
  * Common usage: translation resource file generation
  *
@@ -13,7 +15,8 @@
 class Kblom_FunctionParamParser
 {
     /**
-     * Match to these function names and default pattern if none given
+     * Match to these function names. The given pattern is used to
+     * parse function parameters.
      * 
      * Example 1: only default pattern is used
      *      array('function_name', 'other_function')
