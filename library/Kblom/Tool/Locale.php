@@ -8,7 +8,7 @@ require_once 'Kblom/FunctionParamParser.php';
  * @category  Kblom
  * @package   Kblom_Tool_Locale
  * @copyright Copyright (c) 2010 Kim Blomqvist
- * @lisence   http://github.com/kblomqvist/Kblom-zf/raw/master/LICENSE The MIT License
+ * @license   http://github.com/kblomqvist/Kblom-zf/raw/master/LICENSE The MIT License
  */
 class Kblom_Tool_Locale extends Zend_Tool_Project_Provider_Abstract
 {
