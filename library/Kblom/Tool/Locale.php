@@ -38,28 +38,30 @@ class Kblom_Tool_Locale extends Zend_Tool_Project_Provider_Abstract
         'description',
     );
 
-    /** Supported adapters */
+    /** Supported adapters with their file extensions */
     protected $_adapters = array(
-        'array'
+        'array' => 'php',
     );
+
+    protected $_profile;
+    protected $_response;
 
     public function create($locale, $module = 'all',
                            $adapter = 'array', $kwords = null)
     {
-        $response = $this->_registry->getResponse();
-        $profile  = $this->_loadProfile(self::NO_PROFILE_THROW_EXCEPTION);
+        $response = $this->_getResponse();
 
         /** Check adapter support */
-        if (!in_array($adapter, $this->_adapters)) {
-            return $this->_responseUnknownAdapter($adapter, $response);
+        if (!array_key_exists($adapter, $this->_adapters)) {
+            return $this->_responseUnknownAdapter($adapter);
         }
 
         /** Resolve paths */
-        $modulePath = $this->_getModulePath($module, $profile);
+        $modulePath = $this->_getModulePath($module);
         if (!file_exists($modulePath)) {
-            return $this->_responseModuleDoesNotExist($module, $response);
+            return $this->_responseModuleDoesNotExist($module);
         }
-        $localesPath = $this->_getLocalesPath($locale, $module, $profile);
+        $localesPath = $this->_getLocalesPath($locale, $module);
 
         /** Add additional key words */
         if (null !== $kwords) {
@@ -78,11 +80,10 @@ class Kblom_Tool_Locale extends Zend_Tool_Project_Provider_Abstract
         }
 
         /**
-         * @TODO refactor beginning here...
-         * - Save methods for different adapters
-         * - It may be better use Zend_Translate to read current translations
+         * @TODO beging refactoring here...
+         * - Save methods for different adapters. It may be good idea to use Zend_Log_Writer.
          */
-        $translations = $this->_loadTranslations($localesPath . "/$module.php");   
+        $translations = $this->_loadTranslations($locale, $module, $adapter);
         $matches = $parser->getMatches(false);
 
         $i = 0; $addedMessages = '';
@@ -122,8 +123,13 @@ class Kblom_Tool_Locale extends Zend_Tool_Project_Provider_Abstract
         return true;
     }
 
-    protected function _getModulePath($module, $profile)
+    /**
+     * Returns path to module, which is 'application/modules/$module' or 
+     * 'application' if $module == 'all' OR 'application'.
+     */
+    protected function _getModulePath($module)
     {
+        $profile = $this->_getProfile();
         $path = $profile->search('ApplicationDirectory')->getPath();
 
         if ($module == 'all' || $module == 'application') {
@@ -133,9 +139,15 @@ class Kblom_Tool_Locale extends Zend_Tool_Project_Provider_Abstract
         return $path . "/modules/$module";
     }
 
-    protected function _getLocalesPath($locale, $module, $profile)
+    /**
+     * Returns path where to save translation resource file, which is
+     * 'data/locales/$locale/modules', or 'data/locales/$locale' if
+     * $module == 'all' OR 'application'.
+     */
+    protected function _getLocalesPath($locale, $module)
     {
-        $path = $profile->search('LocalesDirectory')->create()->getPath();
+        $profile = $this->_getProfile();
+        $path  = $profile->search('LocalesDirectory')->create()->getPath();
         $path .= "/$locale";
 
         if ($module == 'all' || $module == 'application') {
@@ -158,15 +170,33 @@ class Kblom_Tool_Locale extends Zend_Tool_Project_Provider_Abstract
         }
     }
 
-    protected function _loadTranslations($filename)
+    /** Try to load current translations */
+    protected function _loadTranslations($locale, $module, $adapter)
     {
-        $data = array();
-        if (file_exists($filename)) {
-            ob_start();
-            $data = include($filename);
-            ob_end_clean();
+        $profile = $this->_getProfile();
+        $path    = $this->_getLocalesPath($locale, $module);
+        $content = $path . '/' . $module . '.' . $this->_adapters[$adapter];
+
+        try {
+            $translate = new Zend_Translate(array(
+                'adapter' => $adapter,
+                'content' => $content,
+                'locale'  => $locale,
+                'disableNotices' => true
+            ));
+        } catch(Exception $e) {
+            if (!file_exists($content)) {
+                return array(); // The file will be created later
+            }
+            throw $e; // File exists, but consist from unkown format
         }
-        return $data;
+
+        // Translation file can be empty, thus this check
+        if ($messageIds = $translate->getMessageIds()) {
+            return array_combine($messageIds, $translate->getMessages());
+        }
+
+        return array();
     }
 
     protected function _saveTranslations($path, $filename, array $translations)
@@ -178,17 +208,37 @@ class Kblom_Tool_Locale extends Zend_Tool_Project_Provider_Abstract
         return file_put_contents($path . "/$filename", "<?php\nreturn " . var_export($translations, true) . ';');
     }
 
-    protected function _responseUnknownAdapter($adapter, $response)
+    protected function _responseUnknownAdapter($adapter)
     {
+        $response = $this->_getResponse();
         $response->appendContent("$adapter: unknown adapter", array('color' => 'yellow'));
 
         return false;
     }
 
-    protected function _responseModuleDoesNotExist($module, $response)
+    protected function _responseModuleDoesNotExist($module)
     {
+        $response = $this->_getResponse();
         $response->appendContent("$module: module does not exist", array('color' => 'yellow'));
 
         return false;
+    }
+
+    /** Proxy for profile loader */
+    protected function _getProfile()
+    {
+        if (!isset($this->_profile)) {
+            $this->_profile = $this->_loadProfile(self::NO_PROFILE_THROW_EXCEPTION);
+        }
+        return $this->_profile;
+    }
+
+    /** Proxy for getting response from registry */
+    protected function _getResponse()
+    {
+        if (!isset($this->_response)) {
+            $this->_response = $this->_registry->getResponse();
+        }
+        return $this->_response;
     }
 }
