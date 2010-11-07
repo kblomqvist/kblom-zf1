@@ -1,6 +1,7 @@
 <?php
 
 require_once 'Kblom/FunctionParamParser.php';
+require_once 'Zend/Translate.php';
 
 /**
  * CLI tool for translation resource file generation
@@ -46,31 +47,78 @@ class Kblom_Tool_Locale extends Zend_Tool_Project_Provider_Abstract
     protected $_profile;
     protected $_response;
 
+    /**
+     * Updates or creates a new translation resource file to match translation
+     * message ids found from application source files.
+     */
     public function create($locale, $module = 'all',
                            $adapter = 'array', $kwords = null)
     {
-        $response = $this->_getResponse();
-
-        /** Check adapter support */
+        if (!$this->moduleExists($module)) {
+            return $this->_responseModuleDoesNotExist($module);
+        }
         if (!array_key_exists($adapter, $this->_adapters)) {
             return $this->_responseUnknownAdapter($adapter);
         }
-
-        /** Resolve paths */
-        $modulePath = $this->_getModulePath($module);
-        if (!file_exists($modulePath)) {
-            return $this->_responseModuleDoesNotExist($module);
-        }
-        $localesPath = $this->_getLocalesPath($locale, $module);
-
-        /** Add additional key words */
         if (null !== $kwords) {
-            $this->_addKeyWords($kwords);
+            $this->addKeyWords($kwords);
         }
 
-        /** Setup function param parser */
+        /** Get translations */
+        $translations = $this->getTranslations($locale, $module, $adapter);
+
+        /** Save translations */
+        $this->_saveTranslations($locale, $module, $adapter, $translations);
+
+        /** Create response */
+        $response = $this->_getResponse();
+
+        if ($i = count($translations['new'])) {
+            $response->appendContent("Added $i message id(s)", array('color' => 'green'));
+            $response->appendContent(var_export($translations['new'], true));
+        } else {
+            $response->appendContent("No new message ids", array('color' => 'green'));
+        }
+
+        if ($i = count($translations['depricated'])) {
+            $response->appendContent("Resource file includes $i depricated translation(s)", array('color' => 'yellow'));
+            $response->appendContent(var_export($translations['depricated'], true));
+        } else {
+            $response->appendContent("No depricated translations", array('color' => 'green'));
+        }
+
+        return true;
+    }
+
+    public function sortTranslations(array $currentTranslations, array $matchedMessageIds)
+    {
+        $matches = array_fill_keys($matchedMessageIds, '');
+
+        $new = array_diff_key($matches, $currentTranslations);
+        $depricated = array_diff_key($currentTranslations, $matches);
+        $active = array_diff_key(array_merge($new, $currentTranslations), $depricated);
+
+        ksort($new, SORT_STRING);
+        ksort($depricated, SORT_STRING);
+        ksort($active, SORT_STRING);
+
+        return array('new' => $new, 'depricated' => $depricated, 'active' => $active);
+    }
+
+    public function getTranslations($locale, $module, $adapter)
+    {
+        $currentTranslations = $this->_loadTranslations($locale, $module, $adapter);
+        $matchedMessageIds = $this->getMatches($module);
+
+        return $this->sortTranslations($currentTranslations, $matchedMessageIds);
+    }
+
+    public function getMatches($module)
+    {
+        $path = $this->getModulePath($module);
+
         $parser = new Kblom_FunctionParamParser(array(
-            'basepath' => $modulePath,
+            'basepath' => $path,
             'funcKeyWords' => $this->_func_kwords,
             'arrKeyWords' => $this->_arr_kwords,
             'defaultPattern' => self::DEFAULT_PATTERN
@@ -79,64 +127,44 @@ class Kblom_Tool_Locale extends Zend_Tool_Project_Provider_Abstract
             $parser->setExcludePaths(array('modules'));
         }
 
-        /**
-         * @TODO beging refactoring here...
-         * - Save methods for different adapters. It may be good idea to use Zend_Log_Writer.
-         */
-        $translations = $this->_loadTranslations($locale, $module, $adapter);
-        $matches = $parser->getMatches(false);
-
-        $i = 0; $addedMessages = '';
-        foreach ($matches as $id) {
-            if (!isset($translations[$id])) {
-                $i++;
-                $translations[$id] = '';
-                $addedMessages .= "$id\n";
-            }
-        }
-
-        if ($i) {
-            $response->appendContent("Added $i message id(s)", array('color' => 'green'));
-            $response->appendContent($addedMessages);
-        } else {
-            $response->appendContent("No new message id(s)", array('color' => 'green'));
-        }
-        
-        $i = 0; $removedMessages = '';
-        foreach ($translations as $id => $msg) {
-            if (!in_array($id, $matches)) {
-                $i++;
-                unset($translations[$id]);
-                $removedMessages .= "$id\n";
-            }
-        }
-
-        if ($i) {
-            $response->appendContent("Removed $i message id(s)", array('color' => 'yellow'));
-            $response->appendContent($removedMessages);
-        } else {
-            $response->appendContent("No removed message id(s)", array('color' => 'green'));
-        }
-
-        $this->_saveTranslations($localesPath, "$module.php", $translations);
-
-        return true;
+        return $parser->getMatches(false);
     }
 
     /**
      * Returns path to module, which is 'application/modules/$module' or 
      * 'application' if $module == 'all' OR 'application'.
      */
-    protected function _getModulePath($module)
+    public function getModulePath($module)
     {
+        $module = (string) $module;
         $profile = $this->_getProfile();
         $path = $profile->search('ApplicationDirectory')->getPath();
 
-        if ($module == 'all' || $module == 'application') {
+        if ($module === 'all' || $module === 'application') {
             return $path;
         }
 
         return $path . "/modules/$module";
+    }
+
+    /** Check if module exists */
+    public function moduleExists($module)
+    {
+        $path = $this->getModulePath($module);
+        return file_exists($path);
+    }
+
+    public function addKeyWords($list)
+    {
+        $kwords = explode(':', (string) $list);
+        foreach ($kwords as $k) {
+            preg_match('/^\[(.+)\]$/', $k, $arr_key);
+            if (isset($arr_key[1])) {
+                $this->_arr_kwords[] = $arr_key[1];
+            } else {
+                $this->_func_kwords[] = $k;
+            }
+        }
     }
 
     /**
@@ -155,19 +183,6 @@ class Kblom_Tool_Locale extends Zend_Tool_Project_Provider_Abstract
         }
 
         return $path . "/modules";
-    }
-
-    protected function _addKeyWords($list)
-    {
-        $kwords = explode(':', (string) $list);
-        foreach ($kwords as $k) {
-            preg_match('/^\[(.+)\]$/', $k, $arr_key);
-            if (isset($arr_key[1])) {
-                $this->_arr_kwords[] = $arr_key[1];
-            } else {
-                $this->_func_kwords[] = $k;
-            }
-        }
     }
 
     /** Try to load current translations */
@@ -199,13 +214,37 @@ class Kblom_Tool_Locale extends Zend_Tool_Project_Provider_Abstract
         return array();
     }
 
-    protected function _saveTranslations($path, $filename, array $translations)
+    protected function _saveTranslations($locale, $module, $adapter, array $translations)
     {
+        if ($adapter == 'array') {
+            $input = $this->_createArray($translations);
+        }
+
+        $path = $this->_getLocalesPath($locale, $module);
+        $file = $path . '/' . $module . '.' . $this->_adapters[$adapter];
+
         if (!file_exists($path)) {
             mkdir($path);
         }
 
-        return file_put_contents($path . "/$filename", "<?php\nreturn " . var_export($translations, true) . ';');
+        return file_put_contents($file, $input);
+    }
+
+    protected function _createArray(array $translations)
+    {
+        $input = "<?php\nreturn array (\n";
+        foreach ($translations['active'] as $key => $val) {
+            $input .= "  '$key' => '$val',\n";
+        }
+        if (!empty($translations['depricated'])) {
+            $input .= "\n  /** Depricated translations. Remove manually or save for reuse. */\n";
+            foreach($translations['depricated'] as $key => $val) {
+                $input .= "  '$key' => '$val',\n";
+            }
+        }
+        $input .= ");\n";
+
+        return $input;
     }
 
     protected function _responseUnknownAdapter($adapter)
