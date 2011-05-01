@@ -117,11 +117,11 @@ class Kblom_Validate_DatetimeTest extends PHPUnit_Framework_TestCase
 	/** @group lendian */
 	public function testValidDateDottedLittleEndianWithLeadingZeros()
 	{
-		$date = '29.4.2011';
+		$date = '29.04.2011';
 		$result = $this->_validator->isValid($date);
 
 		$this->assertTrue($result);
-		$this->assertEquals('j.n.Y', $this->_validator->getMatchedFormat());
+		$this->assertEquals('d.m.Y', $this->_validator->getMatchedFormat());
 	}
 
 	// Big endian date formats
@@ -182,6 +182,7 @@ class Kblom_Validate_DatetimeTest extends PHPUnit_Framework_TestCase
 		$errors = $this->_validator->getErrors();
 
 		$this->assertFalse($result);
+		$this->assertNull($this->_validator->getMatchedFormat());
 		$this->assertEquals(1, count($errors));
 		$this->assertEquals('invalidFormat', $errors[0]);
 	}
