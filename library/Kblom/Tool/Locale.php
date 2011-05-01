@@ -1,5 +1,4 @@
 <?php
-
 require_once 'Kblom/FunctionParamParser.php';
 require_once 'Zend/Translate.php';
 
@@ -8,8 +7,8 @@ require_once 'Zend/Translate.php';
  *
  * @category  Kblom
  * @package   Kblom_Tool_Locale
- * @copyright Copyright (c) 2010 Kim Blomqvist
- * @license   http://github.com/kblomqvist/Kblom-zf/raw/master/LICENSE The MIT License
+ * @copyright Copyright (c) 2010-2011 Kim Blomqvist
+ * @license   http://github.com/kblomqvist/kblom-zf1/raw/master/LICENSE The MIT License
  */
 class Kblom_Tool_Locale extends Zend_Tool_Project_Provider_Abstract
 {
