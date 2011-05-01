@@ -1,0 +1,13 @@
+<phpunit bootstrap="bootstrap.php" colors="true">
+	<testsuites>
+		<testsuite name="Kblom library test suite">
+			<directory>./library/Kblom</directory>
+		</testsuite>
+	</testsuites>
+
+	<filter>
+		<whitelist>
+			<directory suffix=".php">./library/Kblom</directory>
+		</whitelist>
+	</filter>
+</phpunit>
