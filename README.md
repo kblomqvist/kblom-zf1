@@ -2,12 +2,10 @@ Kblom is a library of PHP classes for Zend Framework 1
 
 ## Kblom_FunctionParamParser
 
-Parses PHP source files of given function names and
-returns function parameters. Also supports array key matching to
-fetch array key values.
-
-CLI tool Kblom_Tool_Locale uses this class in translation
-resource file generation by parsing translation message ids.
+Parses PHP source files of given function names and returns function
+parameters. Also supports array key matching to fetch array key values.
+CLI tool Kblom_Tool_Locale uses this class in translation resource file
+generation by parsing translation message ids.
 
 ## Kblom_Tool
 
@@ -16,13 +14,15 @@ resource file generation by parsing translation message ids.
 CLI tool for translation resource file generation.
 
 Example use case:
+
 	zf create locale en
 
 Installation:
-  - edit your $HOME/.zf.ini dotfile
-  - append php.include_path by path/to/Kblom-zf/library
-  - add new basicloader for Kblom_Tool_Locale, e.g.,
-    basicloader.classes.1 = Kblom_Tool_Locale
+
+- edit your $HOME/.zf.ini dotfile
+- append php.include_path by path/to/Kblom-zf/library
+- add new basicloader for Kblom_Tool_Locale, e.g.,
+  basicloader.classes.1 = Kblom_Tool_Locale
 
 ## Kblom_Validate
 
