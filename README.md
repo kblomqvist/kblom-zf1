@@ -19,13 +19,13 @@ Example use case:
 
 Installation:
 
-1. Edit your _$HOME/.zf.ini_ dotfile
-2. Append php.include_path by _/path/to/kblom-zf1/library_
-3. Add new basicloader for _Kblom_Tool_Locale_
+1. Edit your `$HOME/.zf.ini` dotfile
+2. Append `php.include_path` by `/path/to/kblom-zf1/library`
+3. Add new basicloader for `Kblom_Tool_Locale`
 
-The file _.zf.ini_ should look like ...
+The file __.zf.ini__ should look like ...
 
-	include_path = "/path/to/zf/library:.:/usr/share/php:/usr/share/pear:/home/me/kblom-zf1/library"
+	include_path = "/path/to/zf/library:.:/usr/share/php:/usr/share/pear:/path/to/kblom-zf1/library"
 	basicloader.classes.1 = Kblom_Tool_Locale
 
 ## Kblom_Validate
