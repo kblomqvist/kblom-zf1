@@ -4,8 +4,10 @@ require_once 'Zend/Validate/Abstract.php';
 /**
  * Kblom_Validate_Datetime
  *
- * Supports datetime matching against formats constructed by characters
- * declared in (http://www.php.net/manual/en/datetime.createfromformat.php)
+ * - Supports datetime matching against formats constructed by characters
+ *   declared in (http://www.php.net/manual/en/datetime.createfromformat.php).
+ * - Also provides datetime parser as date parts can be fetched after
+ *   validation.
  *
  * Usage:
  * $v = new Kblom_Validate_Datetime();
@@ -15,9 +17,12 @@ require_once 'Zend/Validate/Abstract.php';
  * $v->isValid('2011-04-29 25:00:00'); // FALSE, invalid format
  * $v->isValid('2011-02-29 10:00:00'); // FALSE, valid format, but invalid date
  *
+ * $v->isValid('10:45', 'H:i');
+ * print_r($v->getMatchedParts()); // array('hour' => '10', 'minute' => '45')
+ *
  * @category  Kblom
  * @package   Kblom_Validate
- * @copyright Copyright (c) 2011 Kim Blomqvist
+ * @copyright Copyright (c) 2010-2011 Kim Blomqvist
  * @license   http://github.com/kblomqvist/kblom-zf1/raw/master/LICENSE The MIT License
  */
 class Kblom_Validate_Datetime extends Zend_Validate_Abstract
@@ -154,7 +159,7 @@ class Kblom_Validate_Datetime extends Zend_Validate_Abstract
 			$this->setFormats($options['formats']);
 		}
 		if (array_key_exists('disableLoadDefaultFormats', $options)) {
-			$this->setLoadDefaultFormats($options['disalbeLoadDefaultFormats']);
+			$this->setDisableLoadDefaultFormats($options['disableLoadDefaultFormats']);
 		}
 	}
 

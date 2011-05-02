@@ -7,7 +7,7 @@ require_once 'Kblom/Validate/Datetime.php';
  *
  * @category  Kblom
  * @package   Kblom_Validate
- * @copyright Copyright (c) 2011 Kim Blomqvist
+ * @copyright Copyright (c) 2010-2011 Kim Blomqvist
  * @license   http://github.com/kblomqvist/kblom-zf1/raw/master/LICENSE The MIT License
  */
 class Kblom_Validate_DatetimeTest extends PHPUnit_Framework_TestCase
@@ -35,6 +35,21 @@ class Kblom_Validate_DatetimeTest extends PHPUnit_Framework_TestCase
 
 		$this->assertNull($validator->getMatchedParts());
 		$this->assertNull($validator->getMatchedFormat());
+	}
+
+	public function testCreateWithOptions()
+	{
+		$formats = array(
+			'd.M.Y',
+			'd-M-Y'
+		);
+		$options = array(
+			'formats' => $formats,
+			'disableLoadDefaultFormats' => false
+		);
+		$validator = new Kblom_Validate_Datetime($options);
+
+		$this->assertEquals($formats, $validator->getFormats());
 	}
 
 	public function testDisableLoadDefaultFormats()

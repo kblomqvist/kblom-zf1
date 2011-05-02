@@ -20,7 +20,7 @@ Example use case:
 Installation:
 
 - edit your $HOME/.zf.ini dotfile
-- append php.include_path by path/to/Kblom-zf/library
+- append php.include_path by path/to/kblom-zf1/library
 - add new basicloader for Kblom_Tool_Locale, e.g.,
   basicloader.classes.1 = Kblom_Tool_Locale
 
@@ -28,14 +28,19 @@ Installation:
 
 #### Kblom_Validate_Datetime
 
-Supports datetime matching against formats constructed by characters
-declared in http://www.php.net/manual/en/datetime.createfromformat.php
+- Supports datetime matching against formats constructed by characters
+  declared in http://www.php.net/manual/en/datetime.createfromformat.php.
+- Also provides datetime parser as date parts can be fetched after
+  validation.
 
 	$validator = new Kblom_Validate_Datetime();
 	$validator->isValid('2011-04-29 10:00:00'); // TRUE,  valid ISO 8601 format
 	$validator->isValid('04-2011-29', 'm-Y-d'); // TRUE,  valid date in given format
 	$validator->isValid('2011-04-29 25:00:00'); // FALSE, invalid format
 	$validator->isValid('2011-02-29 10:00:00'); // FALSE, valid format, but invalid date
+	
+	$validator->isValid('10:45', 'H:i');
+	print_r($v->getMatchedParts()); // array('hour' => '10', 'minute' => '45')
  
 
 ## Running tests
