@@ -19,13 +19,18 @@ Example use case:
 
 Installation:
 
-1. edit your $HOME/.zf.ini dotfile
-2. append php.include_path by path/to/kblom-zf1/library
-3. add new basicloader for Kblom_Tool_Locale, e.g., `basicloader.classes.1 = Kblom_Tool_Locale?`
+1. Edit your _$HOME/.zf.ini_ dotfile
+2. Append php.include_path by _path/to/kblom-zf1/library
+3. Add new basicloader for _Kblom_Tool_Locale_, e.g., `basicloader.classes.1 = Kblom_Tool_Locale`
+
+The file _.zf.ini_ should look like ...
+
+	include_path = "/path/to/zf/library:.:/usr/share/php:/usr/share/pear:/home/me/kblom-zf1/library"
+	basicloader.classes.1 = Kblom_Tool_Locale
 
 ## Kblom_Validate
 
-#### Kblom_Validate_Datetime
+### Kblom_Validate_Datetime
 
 Supports __datetime matching__ against formats constructed by characters
 declared in http://www.php.net/manual/en/datetime.createfromformat.php.
@@ -33,13 +38,15 @@ Also provides __datetime parser__ as date parts can be fetched after
 validation.
 
 	$validator = new Kblom_Validate_Datetime();
+
 	$validator->isValid('2011-04-29 10:00:00'); // TRUE,  valid ISO 8601 format
 	$validator->isValid('04-2011-29', 'm-Y-d'); // TRUE,  valid date in given format
 	$validator->isValid('2011-04-29 25:00:00'); // FALSE, invalid format
 	$validator->isValid('2011-02-29 10:00:00'); // FALSE, valid format, but invalid date
 	
-	$validator->isValid('10:45', 'H:i');
-	print_r($v->getMatchedParts()); // array('hour' => '10', 'minute' => '45')
+	$validator->isValid('10:60', 'H:i'); // FALSE
+	$validator->isValid('10:45', 'H:i'); // TRUE
+	print_r($v->getMatchedParts());      // array('hour' => '10', 'minute' => '45')
 
 ## Running tests
 
