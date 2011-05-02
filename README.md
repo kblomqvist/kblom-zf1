@@ -20,8 +20,8 @@ Example use case:
 Installation:
 
 1. Edit your _$HOME/.zf.ini_ dotfile
-2. Append php.include_path by _path/to/kblom-zf1/library
-3. Add new basicloader for _Kblom_Tool_Locale_, e.g., `basicloader.classes.1 = Kblom_Tool_Locale`
+2. Append php.include_path by _/path/to/kblom-zf1/library_
+3. Add new basicloader for _Kblom_Tool_Locale_
 
 The file _.zf.ini_ should look like ...
 
