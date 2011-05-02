@@ -33,9 +33,8 @@ The file __.zf.ini__ should look like ...
 ### Kblom_Validate_Datetime
 
 Supports __datetime matching__ against formats constructed by characters
-declared in http://www.php.net/manual/en/datetime.createfromformat.php.
-Also provides __datetime parser__ as date parts can be fetched after
-validation.
+declared in [DateTime::createFromFormat](http://www.php.net/manual/en/datetime.createfromformat.php).
+Also provides __datetime parser__ as date parts can be fetched after validation.
 
 	$validator = new Kblom_Validate_Datetime();
 
