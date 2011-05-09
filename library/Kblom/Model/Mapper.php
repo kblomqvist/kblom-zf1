@@ -33,9 +33,9 @@ class Kblom_Model_Mapper
 		}
 
 		$mapper = Zend_Registry::get($mapper);
-		if ($mapper instanceof Kblom_Model_Mapper_Entity) {
+		if (!$mapper instanceof Kblom_Model_Mapper_Entity) {
 			throw new Exception('\'' . get_class($mapper) . '\' is invalid
-			   Mapper class should be instance of Kblom_Model_Mapper_Entity');
+			   Mapper object, should be instance of Kblom_Model_Mapper_Entity');
 		}
 		return $mapper;
 	}
