@@ -15,6 +15,8 @@ require_once 'Zend/Registry.php';
  */
 class Kblom_Model_Mapper
 {
+	public static $namespace = 'Application_';
+
 	/**
 	 * Takes care of instantiation of Entity mapper objects. Every
 	 * object is stored in registry when instantiated.
@@ -24,8 +26,12 @@ class Kblom_Model_Mapper
 	 *                          e.g. Application (default)
 	 * @return Kblom_Model_Mapper_Entity
 	 */
-	public static function factory($mapper, $namespace = 'Application_')
+	public static function factory($mapper, $namespace = null)
 	{
+		if ($namespace === null) {
+			$namespace = self::$namespace;
+		}
+
 		$mapper = $namespace . 'Model_Mapper_' . (string) $mapper;
 
 		if (!Zend_Registry::isRegistered($mapper)) {
