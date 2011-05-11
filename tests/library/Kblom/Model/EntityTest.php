@@ -78,6 +78,12 @@ class Kblom_Model_EntityTest extends PHPUnit_Framework_TestCase
 		$this->assertEquals(1, $this->_fixture->getReferenceId('author'));
 	}
 
+	public function testAllowsStoreAuthorIdAsAReference()
+	{
+		$this->_fixture->setReferenceId('author', 5);
+		$this->assertEquals(5, $this->_fixture->getReferenceId('author'));
+	}
+
 	public function testCannotSetReferenceWhichIsNotDeclearedProperty()
 	{
 		try {
