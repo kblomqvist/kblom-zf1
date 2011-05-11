@@ -36,7 +36,7 @@ reference model.
 		{
 			if (!isset($this->_data['author'])) {
 				if (($id = $this->getReferenceId('author')) {
-					$mapper = Kblom_Model_Mapper::factory('Author');
+					$mapper = Kblom_Model_Mapper::factory('Author', '');
 					$this->_data['author'] = $mapper->find($id);
 				}
 			}
@@ -46,7 +46,7 @@ reference model.
 
 #### Kblom_Model_Mapper_Entity
 
-	Model_Mapper_BlogEntry extends Kblom_Model_Mapper_Entity
+	class Model_Mapper_BlogEntry extends Kblom_Model_Mapper_Entity
 	{
 		public function find($id)
 		{
@@ -80,7 +80,10 @@ Factory for entity mapper objects. Loaded mappers are stored into Zend_Registry.
 	$mapper = Kblom_Model_Mapper::factory('Author');
 
 	// Returns Foo_Model_Mapper_Author
-	$mapper = Kblom_Model_Mapper::factory('Author', 'Foo');
+	$mapper = Kblom_Model_Mapper::factory('Author', 'Foo_');
+
+	// Returns Model_Mapper_Author
+	$mapper = Kblom_Model_Mapper::factory('Author', '');
 
 
 ## Kblom_Tool
