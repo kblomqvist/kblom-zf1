@@ -9,11 +9,10 @@ generation by parsing translation message ids.
 
 ## Kblom_Model
 
-Entity model and entity model mapper classes are adapted with a certain
-modifications from a GREAT book about Zend Framework,
-[Survive The Deep End](http://survivethedeepend.com/), written by Pádraic Brady.
+### Kblom_Model_Entity
 
-### Kblom_Model_Entity AND Kblom_Model_Mapper_Entity
+Adapted with a certain modifications from a GREAT book about Zend Framework,
+[Survive The Deep End](http://survivethedeepend.com/), written by Pádraic Brady.
 
 Example blog entry, where the getAuthor() implements lazy loading for Model_Author
 reference model.
@@ -45,11 +44,43 @@ reference model.
 		}
 	}
 
-### Kblom_Model_Mapper_Entity
+#### Kblom_Model_Mapper_Entity
 
-### Kblom_Model_Mapper
+	Model_Mapper_BlogEntry extends Kblom_Model_Mapper_Entity
+	{
+		public function find($id)
+		{
+			if ($this->_hasIdentity($id)) {
+				return $this->_getIdentity($id);
+			}
+			$rowset = $this->getDbTable()->find($id);
 
-Factory for entity mapper objects.
+			if (count($rowset) != 1) {
+				return;
+			}
+			$row = $rowset->current();
+
+			$entry = new Model_BlogEntry(array(
+				'id'      => $row->id,
+				'title'   => $row->title,
+				'content' => $row->content
+			));
+			$entry->setReferenceId('author', $row->author_id);
+
+			$this->_setIdentity($id, $entry);
+			return $entry;
+		}
+	}
+
+#### Kblom_Model_Mapper
+
+Factory for entity mapper objects. Loaded mappers are stored into Zend_Registry.
+
+	// Returns Application_Model_Mapper_Author
+	$mapper = Kblom_Model_Mapper::factory('Author');
+
+	// Returns Foo_Model_Mapper_Author
+	$mapper = Kblom_Model_Mapper::factory('Author', 'Foo');
 
 
 ## Kblom_Tool
