@@ -11,11 +11,12 @@ generation by parsing translation message ids.
 
 ### Kblom_Model_Entity
 
-Adapted with a certain modifications from a GREAT book about Zend Framework,
-[Survive The Deep End](http://survivethedeepend.com/), written by Pádraic Brady.
+`Kblom_Model_Entity` and `Kblom_Model_Mapper_Entity` are adapted with a certain
+modifications from a __GREAT__ book about Zend Framework,
+[Survive The Deep End](http://survivethedeepend.com/), written by __Pádraic Brady__.
 
-Example blog entry, where the getAuthor() implements lazy loading for Model_Author
-reference model.
+Example BlogEntry model, where getAuthor() implements lazy loading for Author
+reference model ...
 
 	class Model_BlogEntry extends Kblom_Model_Entity
 	{
@@ -46,8 +47,12 @@ reference model.
 
 #### Kblom_Model_Mapper_Entity
 
+Example BlogEntry mapper class ...
+
 	class Model_Mapper_BlogEntry extends Kblom_Model_Mapper_Entity
 	{
+		...
+
 		public function find($id)
 		{
 			if ($this->_hasIdentity($id)) {
@@ -85,7 +90,7 @@ Factory for entity mapper objects. Loaded mappers are stored into Zend_Registry.
 	// Returns Model_Mapper_Author
 	$mapper = Kblom_Model_Mapper::factory('Author', '');
 
-	// Returns Bar_Model_Mapper_Aurhor
+	// Returns Bar_Model_Mapper_Author
 	Kblom_Model_Mapper::$namespace = 'Bar_';
 	$mapper = Kblom_Model_Mapper::factory('Author');
 
