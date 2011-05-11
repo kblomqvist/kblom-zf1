@@ -7,6 +7,51 @@ parameters. Also supports array key matching to fetch array key values.
 CLI tool Kblom_Tool_Locale uses this class in translation resource file
 generation by parsing translation message ids.
 
+## Kblom_Model
+
+Entity model and entity model mapper classes are adapted with a certain
+modifications from a GREAT book about Zend Framework,
+[Survive The Deep End](http://survivethedeepend.com/), written by Pádraic Brady.
+
+### Kblom_Model_Entity AND Kblom_Model_Mapper_Entity
+
+Example blog entry, where the getAuthor() implements lazy loading for Model_Author
+reference model.
+
+	class Model_BlogEntry extends Kblom_Model_Entity
+	{
+		protected $data = array(
+			'id'      => null,
+			'title'   => '',
+			'content' => '',
+			'author'  => null,
+		);
+
+		public function setAuthor(Model_Author $author)
+		{
+			$this->_data['author'] = $author;
+			return $this;
+		}
+
+		public function getAuthor()
+		{
+			if (!isset($this->_data['author'])) {
+				if (($id = $this->getReferenceId('author')) {
+					$mapper = Kblom_Model_Mapper::factory('Author');
+					$this->_data['author'] = $mapper->find($id);
+				}
+			}
+			return $this->_data['author'];
+		}
+	}
+
+### Kblom_Model_Mapper_Entity
+
+### Kblom_Model_Mapper
+
+Factory for entity mapper objects.
+
+
 ## Kblom_Tool
 
 ### Kblom_Tool_Locale
