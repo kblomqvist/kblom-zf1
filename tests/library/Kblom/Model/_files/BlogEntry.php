@@ -1,5 +1,6 @@
 <?php
 require_once 'Kblom/Model/Entity.php';
+require_once 'Kblom/Model/Mapper.php';
 
 class Model_BlogEntry extends Kblom_Model_Entity
 {

@@ -92,6 +92,6 @@ class Kblom_Model_EntityTest extends PHPUnit_Framework_TestCase
 			return;
 		}
 
-		$this->fail('An expexted exception has not been raised.');
+		$this->fail('An expected exception has not been raised.');
 	}
 }
