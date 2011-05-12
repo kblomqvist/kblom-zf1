@@ -30,7 +30,7 @@ class Kblom_Model_Mapper_EntityTest extends PHPUnit_Framework_TestCase
 		$this->_dbTable = $this->getMock('Zend_Db_Table_Abstract',
 			array('find'), array(), '', false);
 		$this->_rowset  = $this->getMock('Zend_Db_Table_Rowset_Abstract',
-			array('current'), array(), '', false);
+			array('current', 'count'), array(), '', false);
 
 		$this->_dbTable->expects($this->any())
 			           ->method('getAdapter')
@@ -66,6 +66,9 @@ class Kblom_Model_Mapper_EntityTest extends PHPUnit_Framework_TestCase
 		$this->_rowset->expects($this->once())
 			->method('current')
 			->will($this->returnValue($dbData));
+		$this->_rowset->expects($this->once())
+			->method('count')
+			->will($this->returnValue(1));
 
 		$this->_dbTable->expects($this->once())
 			->method('find')

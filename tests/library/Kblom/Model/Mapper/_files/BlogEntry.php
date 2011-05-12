@@ -8,12 +8,12 @@ class Model_Mapper_BlogEntry extends Kblom_Model_Mapper_Entity
 		if ($this->_hasIdentity($id)) {
 			return $this->_getIdentity($id);
 		}
+		$rowset = $this->getDbTable()->find($id);
 
-		$rows = $this->getDbTable()->find($id);
-		if (!count($rows)) {
+		if (count($rowset) != 1) {
 			return;
 		}
-		$row = $rows->current();
+		$row = $rowset->current();
 
 		$entry = new Model_BlogEntry(array(
 			'id'      => $row->id,
