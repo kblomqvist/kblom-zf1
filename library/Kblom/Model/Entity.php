@@ -144,8 +144,7 @@ class Kblom_Model_Entity
 	public function __get($name)
 	{
 		if (!array_key_exists($name, $this->_data)) {
-			throw new Exception(get_class($this)
-				. ": '$name' is invalid model property");
+			return null;
 		}
 
 		$method = 'get' . $name;

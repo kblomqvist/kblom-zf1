@@ -10,7 +10,7 @@ class Model_Mapper_BlogEntry extends Kblom_Model_Mapper_Entity
 		}
 		$rowset = $this->getDbTable()->find($id);
 
-		if (count($rowset) != 1) {
+		if ($rowset->count() != 1) {
 			return;
 		}
 		$row = $rowset->current();

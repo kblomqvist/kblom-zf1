@@ -94,4 +94,9 @@ class Kblom_Model_EntityTest extends PHPUnit_Framework_TestCase
 
 		$this->fail('An expected exception has not been raised.');
 	}
+
+	public function testInvalidPropertyReturnsNull()
+	{
+		$this->assertNull($this->_fixture->foo);
+	}
 }
