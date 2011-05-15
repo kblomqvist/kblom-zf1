@@ -68,7 +68,7 @@ class Kblom_Test_MapperTestCase extends PHPUnit_Framework_TestCase
 		$this->_adapter = $this->getMock('Zend_Db_Adapter_Mysqli',
 			array(), array(), '', false);
 		$this->_dbTable = $this->getMock('Zend_Db_Table_Abstract',
-			array('find'), array(), '', false);
+			array('find', 'fetchAll'), array(), '', false);
 		$this->_rowset = $this->getMock('Zend_Db_Table_Rowset_Abstract',
 			array('current', 'count', 'valid', 'toArray'), array(), '', false);
 
@@ -102,14 +102,15 @@ class Kblom_Test_MapperTestCase extends PHPUnit_Framework_TestCase
 			if (!is_array($data)) {
 				throw new Exception('Given row is not in array form.');
 			}
-			if ($firstIsPrototype === true && $i > 0) {
+			if ($firstIsPrototype === true) {
 				$dbData[$i] = array_merge($dbData[0], $data);
 			}
-			$rows[] = $this->_getStdClass($data);
+			$rows[] = $this->_getStdClass($dbData[$i]);
 		}
 
 		$mock->expects($this->any())->method('count')
 			->will($this->returnValue($count));
+
 		$mock->expects($this->any())->method('toArray')
 			->will($this->returnValue($dbData));
 
