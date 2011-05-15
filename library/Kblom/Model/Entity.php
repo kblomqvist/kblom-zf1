@@ -62,11 +62,16 @@ class Kblom_Model_Entity
 		}
 	}
 
-	public function setProperties(array $data)
+	public function setProperties($data)
 	{
+		if (!is_array($data)) { 
+			throw new Exception('Invalid data type. Has to be array, ' 
+				. gettype($data) . ' given.'); 
+		}
 		foreach ($data as $name => $value) {
 			$this->{$name} = $value;
 		}
+
 		return $this;
 	}
 
