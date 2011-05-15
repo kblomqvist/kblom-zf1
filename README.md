@@ -94,6 +94,85 @@ Factory for entity mapper objects. Loaded mappers are stored into Zend_Registry.
 	Kblom_Model_Mapper::$namespace = 'Bar_';
 	$mapper = Kblom_Model_Mapper::factory('Author');
 
+## Kblom_Test
+
+### Kblom_Test_MapperTestCase
+
+This class does all boilerplate for data mapper testing. It provides a mocked
+versions of db adapter, db table and db rowset out of box (_adapter, _dbTable and
+_rowset, respectively).
+
+Mocked rowset can be populated with test dbData by _populateRowset()_ method.
+This method also makes the mocked rowset iteratable once.
+
+/* Note [1] */ The first given row (array) is a prototype. Other arrays are
+merged to that so that you can only change the value of some fields and leave
+the other fields as it was in the first place.
+
+Example test case for Entity data mapper:
+
+	class Kblom_Model_Mapper_EntityTest extends Kblom_Test_MapperTestCase
+	{
+		protected $_mapper;
+
+		public function setUp()
+		{
+			parent::setUp();
+			$this->_mapper = new Model_Mapper_Entity($this->_dbTable);
+		}
+
+		public function testFind()
+		{
+			$this->populateRowset($this->_rowset, array(
+				array(
+					'id' => 1,
+					'author_id' => 5
+					'title' => 'bar',
+					'content' => 'baz',
+				)
+			));
+
+			$this->_dbTable->expects($this->once())
+				->method('find')
+				->with($this->equalTo(1))
+				->will($this->returnValue($this->_rowset));
+
+			$result = $this->_mapper->find(1);
+
+			// ... assertions against $result
+		}
+
+ 		public function testFetchAll() {
+			$this->populateRowset($this->_rowset, array(
+				array( /* Note [1] */
+					'id' => 1,
+					'author_id' => 5,
+					'title' => 'foo',
+					'content' => 'barbapapa',
+					'created' => '2011-05-14 13:23:10',
+					'updated' => '0000-00-00 00:00:00'
+				),
+				array(
+					'id' => 2,
+					'title' => 'bar'
+				),
+				array(
+					'id' => 3
+					'author_id' => 2
+					'title' => 'baz'
+				)
+			));
+
+ 			$this->_dbTable->expects($this->once())
+				->method('fetchAll')
+				->with($this->equalTo(1))
+				->will($this->returnValue($this->_rowset));
+ 			
+			$result = $this->_mapper->fetcAll();
+
+			// ... assertions against $result
+		}
+	}
 
 ## Kblom_Tool
 

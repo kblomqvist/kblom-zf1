@@ -1,6 +1,5 @@
 <?php
-require_once 'PHPUnit/Framework/TestCase.php';
-require_once 'Kblom/Test/DbTableRowset.php';
+require_once 'Kblom/Test/MapperTestCase.php';
 
 require_once 'Kblom/Model/Entity.php';
 require_once 'Kblom/Model/Mapper/Entity.php';
@@ -16,31 +15,14 @@ require_once TESTS_PATH . '/library/Kblom/Model/Mapper/_files/BlogEntry.php';
  * @copyright Copyright (c) 2010-2011 Kim Blomqvist
  * @license   http://github.com/kblomqvist/kblom-zf1/raw/master/LICENSE The MIT License
  */
-class Kblom_Model_Mapper_EntityTest extends PHPUnit_Framework_TestCase
+class Kblom_Model_Mapper_EntityTest extends Kblom_Test_MapperTestCase
 {
 	protected $_mapper;
 
-	protected $_adapter;
-	protected $_dbTable;
-	protected $_rowset;
-
 	public function setUp()
 	{
-		$this->_adapter = $this->getMock('Zend_Db_Adapter_Mysqli',
-			array(), array(), '', false);
-		$this->_dbTable = $this->getMock('Zend_Db_Table_Abstract',
-			array('find'), array(), '', false);
-
-		$this->_dbTable->expects($this->any())
-			           ->method('getAdapter')
-					   ->will($this->returnValue($this->_adapter));
-
+		parent::setUp();
 		$this->_mapper = new Model_Mapper_BlogEntry($this->_dbTable);
-	}
-
-	public function tearDown()
-	{
-		unset($this->_mapper, $this->_adapter, $this->_dbTable, $this->_rowset);
 	}
 
 	public function testType()
@@ -56,9 +38,7 @@ class Kblom_Model_Mapper_EntityTest extends PHPUnit_Framework_TestCase
 
 	public function testFind()
 	{
-		$dbTableRowset = new Kblom_Test_DbTableRowset();
-
-		$rowset = $dbTableRowset->mock(array(
+		$this->populateRowset($this->_rowset, array(
 			array(
 				'id' => 1,
 				'title' => 'bar',
@@ -70,7 +50,7 @@ class Kblom_Model_Mapper_EntityTest extends PHPUnit_Framework_TestCase
 		$this->_dbTable->expects($this->once())
 			->method('find')
 			->with($this->equalTo(1))
-			->will($this->returnValue($rowset));
+			->will($this->returnValue($this->_rowset));
 
 		$result = $this->_mapper->find(1);
 
