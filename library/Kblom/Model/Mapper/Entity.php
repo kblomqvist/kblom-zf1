@@ -64,7 +64,7 @@ abstract class Kblom_Model_Mapper_Entity
 	public function setDbTable($dbTable)
 	{
 		if (is_string($dbTable)) {
-			$table = new $dbTable();
+			$dbTable = new $dbTable();
 		}
 		if (!$dbTable instanceof Zend_Db_Table_Abstract) {
 			throw new Exception('Invalid DbTable data gateway provided, has to be instance of Zend_Db_Table_Abstract');
