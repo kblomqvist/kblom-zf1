@@ -89,7 +89,7 @@ abstract class Kblom_Model_Mapper_Entity
 	public function getDbTable()
 	{
 		if ($this->_dbTable === null) {
-			$this->setDbTable(str_replace("_Mapper_", "_DbTable_",
+			$this->setDbTable(str_replace('_Mapper_', '_DbTable_',
 				get_class($this)));
 
 		}
@@ -100,10 +100,15 @@ abstract class Kblom_Model_Mapper_Entity
 	 * Set identity (model)
 	 *
 	 * @param int|string $id Unique id of identity, a number or hash string
-	 * @param Kblom_Model_Entity $identity Identity model
+	 * @param mixed $identity Identity model
 	 */
-	protected function _setIdentity($id, Kblom_Model_Entity $identity)
+	protected function _setIdentity($id, $identity)
 	{
+		$identityClassName = str_replace('Mapper_', '', get_class($this));
+		if (!$identity instanceof $identityClassName) {
+			throw new Exception('Invalid identity provided, should be instance of '
+				. $identityClassName);
+		}
 		if (!is_numeric($id)) {
 			$id = (string) $id;
 		}

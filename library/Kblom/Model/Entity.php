@@ -89,7 +89,7 @@ class Kblom_Model_Entity
 	{
 		if (!array_key_exists($name, $this->_data)) {
 			throw new Exception(get_class($this)
-				. ": '$name' is invalid model property");
+				. ": invalid model reference, does not have property '$name'");
 
 		}
 		if (!is_numeric($id)) {
@@ -97,6 +97,14 @@ class Kblom_Model_Entity
 		}
 		$this->_references[(string) $name] = $id;
 
+		return $this;
+	}
+
+	public function setReferenceIds(array $references)
+	{
+		foreach ($references as $name => $id) {
+			$this->setReferenceId($name, $id);
+		}
 		return $this;
 	}
 
