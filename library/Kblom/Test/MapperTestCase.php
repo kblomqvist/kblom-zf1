@@ -69,7 +69,7 @@ class Kblom_Test_MapperTestCase extends PHPUnit_Framework_TestCase
 		$this->_adapter = $this->getMock('Zend_Db_Adapter_Mysqli',
 			array(), array(), '', false);
 		$this->_dbTable = $this->getMock('Zend_Db_Table_Abstract',
-			array('find', 'fetchAll', 'select'), array(), '', false);
+			array('find', 'insert', 'update', 'fetchAll', 'select'), array(), '', false);
 		$this->_select = $this->getMock('Zend_Db_Table_Select',
 			array(), array(), '', false);
 		$this->_rowset = $this->getMock('Zend_Db_Table_Rowset_Abstract',

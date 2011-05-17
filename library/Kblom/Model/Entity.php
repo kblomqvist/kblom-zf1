@@ -55,10 +55,13 @@ class Kblom_Model_Entity
 	 */
 	protected $_references = array();
 
-	public function __construct($data = null)
+	public function __construct($data = null, $references = null)
 	{
 		if (!is_null($data)) {
 			$this->setProperties($data);
+		}
+		if (!is_null($references)) {
+			$this->setReferenceIds($references);
 		}
 	}
 
