@@ -61,6 +61,7 @@ class Kblom_Test_MapperTestCase extends PHPUnit_Framework_TestCase
 {
 	protected $_adapter;
 	protected $_dbTable;
+	protected $_select;
 	protected $_rowset;
 
 	public function setUp()
@@ -68,13 +69,19 @@ class Kblom_Test_MapperTestCase extends PHPUnit_Framework_TestCase
 		$this->_adapter = $this->getMock('Zend_Db_Adapter_Mysqli',
 			array(), array(), '', false);
 		$this->_dbTable = $this->getMock('Zend_Db_Table_Abstract',
-			array('find', 'fetchAll'), array(), '', false);
+			array('find', 'fetchAll', 'select'), array(), '', false);
+		$this->_select = $this->getMock('Zend_Db_Table_Select',
+			array(), array(), '', false);
 		$this->_rowset = $this->getMock('Zend_Db_Table_Rowset_Abstract',
 			array('current', 'count', 'valid', 'toArray'), array(), '', false);
 
 		$this->_dbTable->expects($this->any())
 			           ->method('getAdapter')
 					   ->will($this->returnValue($this->_adapter));
+		$this->_dbTable->expects($this->any())
+			           ->method('select')
+					   ->will($this->returnValue($this->_select));
+
 	}
 
 	public function tearDown()
