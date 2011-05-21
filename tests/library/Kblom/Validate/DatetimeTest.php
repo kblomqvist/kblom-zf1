@@ -287,6 +287,15 @@ class Kblom_Validate_DatetimeTest extends PHPUnit_Framework_TestCase
 		$this->assertNull($this->_validator->getMatchedFormat());
 	}
 
+	public function testTimeOverflowAround24()
+	{
+		$time = '24:30';
+		$result = $this->_validator->isValid($time, 'H:i');
+
+		$this->assertFalse($result);
+		$this->assertNull($this->_validator->getMatchedFormat());
+	}
+
 	/** @group time */
 	public function testInvalidMinute()
 	{
