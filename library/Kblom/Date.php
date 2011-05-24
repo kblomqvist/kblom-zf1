@@ -19,9 +19,9 @@ class Kblom_Date extends DateTime
 	 * Set date, time or datetime from format
 	 *
 	 * Example:
-	 * $date->setFromFormat('H:i', '10:45'); // set time
-	 * $date->setFromFormat('m', 4); // set only month
-	 * $date->setFromFormat('Y-m-d H:i:s', '2011-04-24 10:00:01');
+	 * $date = new Kblom_Date('2011-01-01');
+	 * echo $date->setFromFormat('H:i', '10:45'); // '2011-01-01 10:45:00'
+	 * echo $date->setFromFormat('n', 4);         // '2011-04-01 10:45:00'
 	 *
 	 * @param string $format
 	 * @param int|string $time
