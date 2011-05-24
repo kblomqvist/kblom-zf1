@@ -1,4 +1,4 @@
-# Kblom
+# kblom-zf1
 
 Kblom is a library of PHP classes for Zend Framework 1
 
