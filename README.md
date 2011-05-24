@@ -1,4 +1,16 @@
+# Kblom
+
 Kblom is a library of PHP classes for Zend Framework 1
+
+## Kblom_Date
+Extends [PHP's DateTime class](http://www.php.net/manual/en/class.datetime.php) to support date and time setting from format. This functionality is rather similar than Zend_Date's setTime() and setDate() methods.
+
+	$date = new Kblom_Date('2011-01-01');
+	echo $date->format('Y-m-d H:i:s');                               // '2011-01-01 00:00:00'
+
+	echo $date->setFromFormat('H:i', '10:45');                       // '2011-01-01 10:45:00'
+	echo $date->setFromFormat('n', 4);                               // '2011-04-01 10:45:00'
+	echo $date->setFromFormat('Y-m-d H:i:s', '2011-02-15 10:00:01'); // '2011-02-15 10:00:01'
 
 ## Kblom_FunctionParamParser
 
@@ -12,11 +24,11 @@ generation by parsing translation message ids.
 ### Kblom_Model_Entity
 
 `Kblom_Model_Entity` and `Kblom_Model_Mapper_Entity` are adapted with a certain
-modifications from a __GREAT__ book about Zend Framework,
+modifications from a great book about Zend Framework,
 [Survive The Deep End](http://survivethedeepend.com/), written by __Pádraic Brady__.
 
-Example BlogEntry model, where getAuthor() implements lazy loading for Author
-reference model ...
+Example of BlogEntry entity model, where getAuthor() implements lazy loading for Author
+entity model ...
 
 	class Model_BlogEntry extends Kblom_Model_Entity
 	{
@@ -47,7 +59,7 @@ reference model ...
 
 #### Kblom_Model_Mapper_Entity
 
-Example BlogEntry mapper class ...
+Example of BlogEntry mapper class ...
 
 	class Model_Mapper_BlogEntry extends Kblom_Model_Mapper_Entity
 	{
@@ -81,18 +93,12 @@ Example BlogEntry mapper class ...
 
 Factory for entity mapper objects. Loaded mappers are stored into Zend_Registry.
 
-	// Returns Application_Model_Mapper_Author
-	$mapper = Kblom_Model_Mapper::factory('Author');
+	$mapper = Kblom_Model_Mapper::factory('Author');         // returns Application_Model_Mapper_Author
+	$mapper = Kblom_Model_Mapper::factory('Author', 'Foo_'); // returns Foo_Model_Mapper_Author
+	$mapper = Kblom_Model_Mapper::factory('Author', '');     // returns Model_Mapper_Author
 
-	// Returns Foo_Model_Mapper_Author
-	$mapper = Kblom_Model_Mapper::factory('Author', 'Foo_');
-
-	// Returns Model_Mapper_Author
-	$mapper = Kblom_Model_Mapper::factory('Author', '');
-
-	// Returns Bar_Model_Mapper_Author
 	Kblom_Model_Mapper::$namespace = 'Bar_';
-	$mapper = Kblom_Model_Mapper::factory('Author');
+	$mapper = Kblom_Model_Mapper::factory('Author');         // returns Bar_Model_Mapper_Author
 
 ## Kblom_Test
 
