@@ -236,25 +236,22 @@ class Kblom_FunctionParamParser
 			throw new Exception('No function patterns set');
 		}
 
-		// Creat pattern to match functions
+		// Create pattern to match functions
 		$pattern = implode('|', array_keys($this->_patterns));
-		$pattern = "/($pattern)\s*\(\s*([^\)\\\\]*(?:\\\\.[^\)\\\\]*)*)\s*\)/";
+		$pattern = "/($pattern)\s*\(\s*(.+)\s*\)/";
 
+		// Match functions
 		if (($c = preg_match_all($pattern, $content, $matches)) == 0) {
 			return array(); // No matches
 		}
 
-		// Remove extra whitespace
-		for ($i = 0; $i < $c; $i++) {
-			$matches[2][$i] = preg_replace('/\s+/', ' ', $matches[2][$i]);
-		}
-
-		// Parse function _parameter_ part with given patterns
+		// Parse function parameter part with given patterns
 		for ($i = 0; $i < $c; $i++) {
 			$pattern = implode('|', $this->_patterns[$matches[1][$i]]);
 			preg_match_all("/$pattern/", $matches[2][$i], $matches[2][$i]);
 		}
 
+		// Trim matches
 		for ($i = 0; $i < $c; $i++) {
 
 			// Save matches to temp array
