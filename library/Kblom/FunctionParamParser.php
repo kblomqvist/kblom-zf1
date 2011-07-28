@@ -13,23 +13,24 @@
  */
 class Kblom_FunctionParamParser
 {
-    /**
-     * Match to these function names. The given pattern is used to
-     * parse function parameters.
-     * 
-     * Example 1: only default pattern is used
-     *      array('function_name', 'other_function')
-     *
-     * Example 2: mixed default and custom patterns
-     *      array(
-     *          'function_name',
-     *          'other_function' => "^'(.+)',\s*'(.+)'"
-     *      )
-     */
-    protected $_func_kwords = array();
+	const PATTERN_SINGLE_QUOTE_STRING = "'([^'\\\\]*(?:\\\\.[^'\\\\]*)*)'";
+	const PATTERN_DOUBLE_QUOTE_STRING = "\"([^\"\\\\]*(?:\\\\.[^\"\\\\]*)*)\"";
 
-    /** Match to these array keys */
-    protected $_arr_kwords = array();
+    /**
+	 * Match these function names and parse its parameters with the given
+	 * regexp patterns. Multiple patterns are imploded by regexp OR, |.
+	 *
+	 * Example:
+	 *   array(
+	 *     'translate' => array(
+	 *        "'([^'\\\\]*(?:\\\\.[^'\\\\]*)*)'",
+	 *        "\"([^\"\\\\]*(?:\\\\.[^\"\\\\]*)*)\"",
+	 *     )
+	 *   );
+	 *
+	 * @var array
+     */
+	protected $_patterns = array();
 
     /** Paths where to find files. Defaults to path "basepath/." */
     protected $_basepath;
@@ -38,13 +39,15 @@ class Kblom_FunctionParamParser
     /** Exclude these paths */
     protected $_excludePaths = array();
 
-    /** Reads only files with these extensions */
+	/**
+	 * Reads only files with these extensions
+	 *
+	 * @var array 
+	 */
     protected $_extensions = array('php', 'phtml');
 
-    /** Parse nested directories of given paths */
-    protected $_parseRecursively = true;
+    protected $_parseNestedDirs = true;
 
-    /** Get the string inside matched function parenthesis; func(THIS_PORTION) */
     protected $_defaultPattern = '(.+)';
 
     protected $_matches;
@@ -56,11 +59,11 @@ class Kblom_FunctionParamParser
 
     public function setOptions(array $options)
     {
-        if (isset($options['funcKeyWords'])) {
-            $this->setFuncKeyWords($options['funcKeyWords']);
-        }
-        if (isset($optios['arrKeyWords'])) {
-            $this->setArrKeyWords($options['arrKeyWords']);
+		if (isset($options['defaultPattern'])) {
+			$this->setDefaultPattern($options['defaultPattern']);
+		}
+        if (isset($options['functionKeywords'])) {
+            $this->setFuncKeyWords($options['functionKeywords']);
         }
         if (isset($options['basepath'])) {
             $this->setBasepath($options['basepath']);
@@ -71,24 +74,92 @@ class Kblom_FunctionParamParser
         if (isset($options['excludePaths'])) {
             $this->setExcludePaths($options['excludePaths']);
         }
-        if (isset($options['parseRecursively'])) {
-            $this->setParseRecursively($options['parseRecursively']);
+        if (isset($options['parseNestedDirs'])) {
+            $this->setParseNestedDirs($options['parseNestedDirs']);
         }
 
         return $this;
-    }
+	}
 
-    public function setFuncKeyWords(array $func_kwords)
-    {
-        $this->_func_kwords = $func_kwords;
-        return $this;
-    }
+	public function setDefaultPattern($pattern)
+	{
+		if (empty($pattern)) {
+			$pattern = null;
+		}
+		$this->_defaultPattern = $pattern;
 
-    public function setArrKeyWords(array $arr_kwords)
+		return $this;
+	}
+
+	public function getDefaultPattern()
+	{
+		return $this->_defaultPattern;
+	}
+
+    public function setFunctionKeywords(array $kwords)
     {
-        $this->_arr_kwords = $arr_kwords;
-        return $this;
-    }
+		$this->_patterns = array();
+
+		foreach ($kwords as $fname => $pattern) {
+			if (is_int($fname)) {
+				$fname = $pattern;
+				$pattern = null;
+			}
+			$this->setFunctionKeyword($fname, $pattern);
+		}
+		return $this;
+	}
+
+	public function setFunctionKeyword($fname, $pattern = null)
+	{
+		if ($pattern === null) {
+			unset($this->_patterns[$fname]);
+		} else {
+			$this->_patterns[$fname] = array();
+		}
+
+		return $this->addFunctionKeyword($fname, $pattern);
+	}
+
+	public function addFunctionKeywords(array $kwords)
+	{
+		foreach ($kwords as $fname => $pattern) {
+			if (is_int($fname)) {
+				$fname = $pattern;
+				$pattern = null;
+			}
+			$this->addFunctionKeyword($fname, $pattern);
+		}
+		return $this;
+	}
+
+	public function addFunctionKeyword($fname, $pattern = null)
+	{
+		if (!array_key_exists($fname, $this->_patterns)) {
+			$this->_patterns[$fname] = array($this->getDefaultPattern());
+		}
+
+		if (!is_array($pattern)) {
+			if (!empty($pattern)) {
+				$pattern = array((string) $pattern);
+			} else {
+				$pattern = array();
+			}
+		}
+
+		foreach ($pattern as $p) {
+			if (!in_array($p, $this->_patterns[$fname])) {
+				array_unshift($this->_patterns[$fname], $p);
+			}
+		}
+
+		return $this;
+	}
+
+	public function getPatterns()
+	{
+		return $this->_patterns;
+	}
 
     public function setBasepath($path)
     {
@@ -112,21 +183,15 @@ class Kblom_FunctionParamParser
         return $this;
     }
 
-    public function setDefaultPattern($pattern)
-    {
-        $this->_defaultPattern = (string) $pattern;
-        return $this;
-    }
-
     public function setParseRecursively($state)
     {
         $this->_parseRecursively = (boolean) $state;
         return $this;
     }
 
-    public function getMatches($include_keys = true, $reparse = false)
+    public function parseAll($include_keys = true, $reparse = false)
     {
-        if (!isset($this->_matches) || (true === $reparse)) {
+        if (!isset($this->_matches) || ($reparse === true)) {
             $this->_matches = array();
 
             foreach ($this->_relativePaths as $path) {
@@ -148,10 +213,10 @@ class Kblom_FunctionParamParser
         return $this->_matches;
     }
 
-    public function parseFile($file, $throw = false)
+    public function parseFile($file, $throw = true)
     {
-        $path_parts = pathinfo($file);
-        if (!in_array($path_parts['extension'], $this->_extensions)) {
+        $pathParts = pathinfo($file);
+        if (!in_array($pathParts['extension'], $this->_extensions)) {
             return array();
         }
 
@@ -162,43 +227,63 @@ class Kblom_FunctionParamParser
             return array();
         }
 
-        // Read file
-        $f_content = file_get_contents($file);
+		return $this->parseContent(file_get_contents($file));
+	}
 
-        $matches = array();
-        foreach ($this->_func_kwords as $func => $patterns) {
-            if (is_int($func)) {
-                $func = $patterns;
-                $patterns = array($this->_defaultPattern);
-            }
+	public function parseContent($content)
+	{
+		if (empty($this->_patterns)) {
+			throw new Exception('No function patterns set');
+		}
 
-            // Look up for functions and catch params part
-            preg_match_all("/{$func}\(\s*(.+)\s*\)/", $f_content, $t_array);
-            $func_params = $t_array[1];
-            unset($t_array);
+		// Creat pattern to match functions
+		$pattern = implode('|', array_keys($this->_patterns));
+		$pattern = "/($pattern)\s*\(\s*([^\)\\\\]*(?:\\\\.[^\)\\\\]*)*)\s*\)/";
 
-            // Match set patterns against function's params part
-            $matches[$func] = array();
-            $pattern = implode($patterns, '|');
-            foreach ($func_params as $params) {
-                $matches[$func] = array_merge(
-                    $matches[$func], $this->_parseFuncParams("/{$pattern}/", $params)
-                );
-            }
-        }
+		if (($c = preg_match_all($pattern, $content, $matches)) == 0) {
+			return array(); // No matches
+		}
 
-        // Look up for array keys and catch value
-        $matches['__arr_keys'] = array();
-        foreach ($this->_arr_kwords as $key) {
-            preg_match_all("/'{$key}'\s*=>\s*'(.+)'/", $f_content, $t_array);
-            $matches['__arr_keys'] = array_merge($matches['__arr_keys'], $t_array[1]);
-            unset($t_array);
-        }
+		// Remove extra whitespace
+		for ($i = 0; $i < $c; $i++) {
+			$matches[2][$i] = preg_replace('/\s+/', ' ', $matches[2][$i]);
+		}
 
-        unset($f_content);
+		// Parse function _parameter_ part with given patterns
+		for ($i = 0; $i < $c; $i++) {
+			$pattern = implode('|', $this->_patterns[$matches[1][$i]]);
+			preg_match_all("/$pattern/", $matches[2][$i], $matches[2][$i]);
+		}
 
-        return $matches;
+		for ($i = 0; $i < $c; $i++) {
+
+			// Save matches to temp array
+			$t = $matches[2][$i];
+			unset($t[0]);
+
+			// Format space for trimmed matches from matches array
+			$matches[2][$i] = array();
+
+			// Go through function parameter matches, pmatch
+			foreach ($t as $pmatch) {
+				foreach ($pmatch as $pm) {
+					if (!empty($pm)) {
+
+					// Catch only the first match if not empty
+					$matches[2][$i][] = $pm;
+					}
+				}
+			}
+		}
+
+		return $this->postProcessMatches($matches, $content);
     }
+
+	protected function postProcessMatches($matches, $content)
+	{
+		// Extend to resolve for example line numbers
+		return $matches;
+	}
 
     public function parseFolder($folder, $recursive = true)
     {
@@ -216,13 +301,10 @@ class Kblom_FunctionParamParser
         foreach($files as $file) {
             if (is_dir($folder . '/' . $file) && (true === $recursive)) {
                 // Recursion, traverses through subdirs
-                $matches = $this->_catMatches(
-                    $matches, $this->parseFolder($folder . '/' . $file)
-                );
+                $matches = array_merge($matches, $this->parseFolder($folder . '/' . $file));
             } else {
-                $matches = $this->_catMatches(
-                    $matches, $this->parseFile($folder . '/' . $file)
-                );
+				$matches["$folder/$file"] =
+					$this->parseFile($folder . '/' . $file);
             }
         }
 
@@ -252,20 +334,11 @@ class Kblom_FunctionParamParser
         return $a1;
     }
 
-    private function _parseFuncParams($pattern, $params)
-    {
-        preg_match($pattern, $params, $matches);
-        unset($matches[0]);
-
-        $ret = array();
-        foreach ($matches as $match) {
-            if (!empty($match)) {
-                $ret[] = $match;
-            }
-        }
-        unset($matches);
-
-        return $ret;
-    }
+	public function escapeRegexpPattern($pattern)
+	{
+		$search = array("\\", '$', '^', '[', ']', '(', ')');
+		$replace = array("\\\\", '\$', "\^", '\[', '\]', '\(', '\)');
+		return str_replace($search, $replace, $pattern);
+	}
 }
 

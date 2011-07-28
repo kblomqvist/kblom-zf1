@@ -1,0 +1,40 @@
+<p>
+<?php
+	// Single and double quoted strings
+	echo $this->translate("foobar");
+	echo $this->translate('foobar');
+
+	// Single and double quoted strings with escaped quotes
+	echo $this->translate("foo\"bar");
+	echo $this->translate('foo\'bar');
+	echo $this->translate("foo'bar");
+	echo $this->translate('foo"bar');
+
+	// Modern plural translations
+	$number = 2;
+	$this->translate(array('Car', 'Cars', $number));
+	$this->translate(array('Car', "Cars", $number));
+	$this->translate(array("Car", 'Cars', $number));
+
+	// Translate - list of parameters
+	$hour = '10';
+	$minute = '15';
+	$second = '00';
+	echo $this->translate("It is %1\$s:%2\$:%3\$ o'clock", $hour, $minute, $second);
+
+	// Translate - array of parameters. Parser has to be careful with this
+	// translation message string because escaping is needed when used in regexp pattern
+	$date = array("Monday", "April", "11:20:55");
+	echo $this->translate("Today is %1\$s in %2\$s. Actual time: %3\$s", $date);
+
+	// Two equal translation keywords in a row, but wrapped in
+	// a different functions
+	echo $this->translate('moi');
+	echo $this->myTranslate('moi');
+
+	// If I'm saying "foo" here in comment line the parser shouldn't
+	// be fooled with the line numbers. The "foo" we are looking for
+	// is found below.
+	echo $this->translate('foo');
+?>
+</p>
