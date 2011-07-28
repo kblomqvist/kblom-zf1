@@ -16,69 +16,69 @@ class Kblom_FunctionParamParser
 	const PATTERN_SINGLE_QUOTE_STRING = "'([^'\\\\]*(?:\\\\.[^'\\\\]*)*)'";
 	const PATTERN_DOUBLE_QUOTE_STRING = "\"([^\"\\\\]*(?:\\\\.[^\"\\\\]*)*)\"";
 
-    /**
+	/**
 	 * Match these function names and parse its parameters with the given
 	 * regexp patterns. Multiple patterns are imploded by regexp OR, |.
 	 *
 	 * Example:
-	 *   array(
-	 *     'translate' => array(
-	 *        "'([^'\\\\]*(?:\\\\.[^'\\\\]*)*)'",
-	 *        "\"([^\"\\\\]*(?:\\\\.[^\"\\\\]*)*)\"",
-	 *     )
-	 *   );
+	 *	 array(
+	 *	   'translate' => array(
+	 *		  "'([^'\\\\]*(?:\\\\.[^'\\\\]*)*)'",
+	 *		  "\"([^\"\\\\]*(?:\\\\.[^\"\\\\]*)*)\"",
+	 *	   )
+	 *	 );
 	 *
 	 * @var array
-     */
+	 */
 	protected $_patterns = array();
 
-    /** Paths where to find files. Defaults to path "basepath/." */
-    protected $_basepath;
-    protected $_relativePaths = array('.');
+	/** Paths where to find files. Defaults to path "basepath/." */
+	protected $_basepath;
+	protected $_relativePaths = array('.');
 
-    /** Exclude these paths */
-    protected $_excludePaths = array();
+	/** Exclude these paths */
+	protected $_excludePaths = array();
 
 	/**
 	 * Reads only files with these extensions
 	 *
 	 * @var array 
 	 */
-    protected $_extensions = array('php', 'phtml');
+	protected $_extensions = array('php', 'phtml');
 
-    protected $_parseNestedDirs = true;
+	protected $_parseNestedDirs = true;
 
-    protected $_defaultPattern = '(.+)';
+	protected $_defaultPattern = '(.+)';
 
-    protected $_matches;
+	protected $_matches;
 
-    public function __construct(array $options = array())
-    {
-        $this->setOptions($options);
-    }
+	public function __construct(array $options = array())
+	{
+		$this->setOptions($options);
+	}
 
-    public function setOptions(array $options)
-    {
+	public function setOptions(array $options)
+	{
 		if (isset($options['defaultPattern'])) {
 			$this->setDefaultPattern($options['defaultPattern']);
 		}
-        if (isset($options['functionKeywords'])) {
-            $this->setFuncKeyWords($options['functionKeywords']);
-        }
-        if (isset($options['basepath'])) {
-            $this->setBasepath($options['basepath']);
-        }
-        if (isset($options['relativePaths'])) {
-            $this->setRelativePaths($options['relativePaths']);
-        }
-        if (isset($options['excludePaths'])) {
-            $this->setExcludePaths($options['excludePaths']);
-        }
-        if (isset($options['parseNestedDirs'])) {
-            $this->setParseNestedDirs($options['parseNestedDirs']);
-        }
+		if (isset($options['functionKeywords'])) {
+			$this->setFuncKeyWords($options['functionKeywords']);
+		}
+		if (isset($options['basepath'])) {
+			$this->setBasepath($options['basepath']);
+		}
+		if (isset($options['relativePaths'])) {
+			$this->setRelativePaths($options['relativePaths']);
+		}
+		if (isset($options['excludePaths'])) {
+			$this->setExcludePaths($options['excludePaths']);
+		}
+		if (isset($options['parseNestedDirs'])) {
+			$this->setParseNestedDirs($options['parseNestedDirs']);
+		}
 
-        return $this;
+		return $this;
 	}
 
 	public function setDefaultPattern($pattern)
@@ -96,8 +96,8 @@ class Kblom_FunctionParamParser
 		return $this->_defaultPattern;
 	}
 
-    public function setFunctionKeywords(array $kwords)
-    {
+	public function setFunctionKeywords(array $kwords)
+	{
 		$this->_patterns = array();
 
 		foreach ($kwords as $fname => $pattern) {
@@ -161,71 +161,71 @@ class Kblom_FunctionParamParser
 		return $this->_patterns;
 	}
 
-    public function setBasepath($path)
-    {
-        $this->_basepath = (string) $path;
-        return $this;
-    }
+	public function setBasepath($path)
+	{
+		$this->_basepath = (string) $path;
+		return $this;
+	}
 
-    public function setRelativePaths(array $paths) {
-        $this->_relativePaths = array();
-        foreach ($paths as $path) {
-            $this->_relativePaths[] = trim($path, '/');
-        }
-        return $this;
-    }
+	public function setRelativePaths(array $paths) {
+		$this->_relativePaths = array();
+		foreach ($paths as $path) {
+			$this->_relativePaths[] = trim($path, '/');
+		}
+		return $this;
+	}
 
-    public function setExcludePaths(array $paths) {
-        $this->_excludePaths = array();
-        foreach ($paths as $path) {
-            $this->_excludePaths[] = trim($path, '/');
-        }
-        return $this;
-    }
+	public function setExcludePaths(array $paths) {
+		$this->_excludePaths = array();
+		foreach ($paths as $path) {
+			$this->_excludePaths[] = trim($path, '/');
+		}
+		return $this;
+	}
 
-    public function setParseRecursively($state)
-    {
-        $this->_parseRecursively = (boolean) $state;
-        return $this;
-    }
+	public function setParseRecursively($state)
+	{
+		$this->_parseRecursively = (boolean) $state;
+		return $this;
+	}
 
-    public function parseAll($include_keys = true, $reparse = false)
-    {
-        if (!isset($this->_matches) || ($reparse === true)) {
-            $this->_matches = array();
+	public function parseAll($include_keys = true, $reparse = false)
+	{
+		if (!isset($this->_matches) || ($reparse === true)) {
+			$this->_matches = array();
 
-            foreach ($this->_relativePaths as $path) {
-                $path = $this->_basepath . '/' . $path;
-                $this->_matches = $this->_catMatches(
-                    $this->_matches, $this->parseFolder($path, $this->_parseRecursively)
-                );
-            }
-        }
+			foreach ($this->_relativePaths as $path) {
+				$path = $this->_basepath . '/' . $path;
+				$this->_matches = $this->_catMatches(
+					$this->_matches, $this->parseFolder($path, $this->_parseRecursively)
+				);
+			}
+		}
 
-        if (false === $include_keys) {
-            $ret = array();
-            foreach ($this->_matches as $func => $matches) {
-                $ret = array_merge($ret, $matches);
-            }
-            return $ret;
-        }
+		if (false === $include_keys) {
+			$ret = array();
+			foreach ($this->_matches as $func => $matches) {
+				$ret = array_merge($ret, $matches);
+			}
+			return $ret;
+		}
 
-        return $this->_matches;
-    }
+		return $this->_matches;
+	}
 
-    public function parseFile($file, $throw = true)
-    {
-        $pathParts = pathinfo($file);
-        if (!in_array($pathParts['extension'], $this->_extensions)) {
-            return array();
-        }
+	public function parseFile($file, $throw = true)
+	{
+		$pathParts = pathinfo($file);
+		if (!in_array($pathParts['extension'], $this->_extensions)) {
+			return array();
+		}
 
-        if (!is_file($file) || !is_readable($file)) {
-            if (true === $throw) {
-                throw new Zend_Exception($file . ' is not a file or is not readable.');
-            }
-            return array();
-        }
+		if (!is_file($file) || !is_readable($file)) {
+			if (true === $throw) {
+				throw new Zend_Exception($file . ' is not a file or is not readable.');
+			}
+			return array();
+		}
 
 		return $this->parseContent(file_get_contents($file));
 	}
@@ -274,7 +274,7 @@ class Kblom_FunctionParamParser
 		}
 
 		return $this->postProcessMatches($matches, $content);
-    }
+	}
 
 	protected function postProcessMatches($matches, $content)
 	{
@@ -282,54 +282,54 @@ class Kblom_FunctionParamParser
 		return $matches;
 	}
 
-    public function parseFolder($folder, $recursive = true)
-    {
-        if (substr($folder, -1) === '/') {
-            $folder = substr_replace($folder, '', -1);
-        }
-        if ($this->isExcludedPath($folder)) {
-            return array();
-        }
+	public function parseFolder($folder, $recursive = true)
+	{
+		if (substr($folder, -1) === '/') {
+			$folder = substr_replace($folder, '', -1);
+		}
+		if ($this->isExcludedPath($folder)) {
+			return array();
+		}
 
-        $files = scandir($folder);
-        unset($files[0], $files[1]); // remove files . and ..
+		$files = scandir($folder);
+		unset($files[0], $files[1]); // remove files . and ..
 
-        $matches = array();
-        foreach($files as $file) {
-            if (is_dir($folder . '/' . $file) && (true === $recursive)) {
-                // Recursion, traverses through subdirs
-                $matches = array_merge($matches, $this->parseFolder($folder . '/' . $file));
-            } else {
+		$matches = array();
+		foreach($files as $file) {
+			if (is_dir($folder . '/' . $file) && (true === $recursive)) {
+				// Recursion, traverses through subdirs
+				$matches = array_merge($matches, $this->parseFolder($folder . '/' . $file));
+			} else {
 				$matches["$folder/$file"] =
 					$this->parseFile($folder . '/' . $file);
-            }
-        }
+			}
+		}
 
-        return $matches;
-    }
+		return $matches;
+	}
 
-    public function isExcludedPath($path)
-    {
-        $path = (string) $path;
-        foreach ($this->_excludePaths as $p) {
-            if ($this->_basepath . '/' . $p == $path) {
-                return true;
-            }
-        }
-        return false;
-    }
+	public function isExcludedPath($path)
+	{
+		$path = (string) $path;
+		foreach ($this->_excludePaths as $p) {
+			if ($this->_basepath . '/' . $p == $path) {
+				return true;
+			}
+		}
+		return false;
+	}
 
-    private function _catMatches($a1, $a2)
-    {
-        foreach ($a2 as $func => $matches) {
-            if (!isset($a1[$func])) {
-                $a1[$func] = array();
-            }
-            $a1[$func] = array_merge($a1[$func], $matches);
-        }
+	private function _catMatches($a1, $a2)
+	{
+		foreach ($a2 as $func => $matches) {
+			if (!isset($a1[$func])) {
+				$a1[$func] = array();
+			}
+			$a1[$func] = array_merge($a1[$func], $matches);
+		}
 
-        return $a1;
-    }
+		return $a1;
+	}
 
 	public function escapeRegexpPattern($pattern)
 	{
