@@ -117,9 +117,13 @@ class Kblom_Model_Entity
 	 */
 	public function getReferenceId($name)
 	{
-		if (array_key_exists($name, $this->_references)) {
+		if ($this->hasReferenceId($name)) {
 			return $this->_references[$name];
 		}
+	}
+
+	public function hasReferenceId($name) {
+		return array_key_exists($name, $this->_references);
 	}
 
 	/**
